@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  joomla:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    ports:
+      - "80:80"
+    volumes:
+      - joomla_data:/var/www/html
+    environment:
+      JOOMLA_DB_HOST: db
+      JOOMLA_DB_USER: joomla
+      JOOMLA_DB_PASSWORD: example
+      JOOMLA_DB_NAME: joomla
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    volumes:
+      - joomla_data:/var/www/html
+    expose:
+      - "9000"
+    environment:
+      PHP_FPM_USER: www-data
+      PHP_FPM_GROUP: www-data
+      PHP_FPM_LISTEN: "9000"
+
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile-db
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: joomla
+      MYSQL_USER: joomla
+      MYSQL_PASSWORD: example
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  joomla_data:
+  db_data:
